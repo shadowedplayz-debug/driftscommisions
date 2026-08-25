@@ -243,10 +243,11 @@ class OrderStatusView(discord.ui.View):
     ) -> None:
         if (
             interaction.channel is None
-            or interaction.channel.name != order-status
+            or interaction.channel.name != DASHBOARD_CHANNEL_NAME
+
         ):
             await interaction.response.send_message(
-                f"These controls only work in `#{order-status}`.",
+                f"These controls only work in `#{DASHBOARD_CHANNEL_NAME}`.",
                 ephemeral=True,
             )
             return
@@ -945,3 +946,23 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+
+
+        dashboard_embed = interaction.message.embeds[0]
+        # ... (this is where your code snippet cut off)
+
+
+# ------------------------------- Execution ------------------------------- #
+
+bot = CommissionBot()
+
+if __name__ == "__main__":
+    # Start the Flask web server first so Render finds the open port
+    keep_alive()
+    
+    # Run the Discord bot
+    token = os.environ.get("DISCORD_TOKEN") or os.environ.get("TOKEN")
+    if not token:
+        raise ValueError("No Discord token found in environment variables!")
+    bot.run(token)
+
