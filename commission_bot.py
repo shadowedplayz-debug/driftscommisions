@@ -243,10 +243,10 @@ class OrderStatusView(discord.ui.View):
     ) -> None:
         if (
             interaction.channel is None
-            or interaction.channel.name != bot-dashboard
+            or interaction.channel.name != order-status
         ):
             await interaction.response.send_message(
-                f"These controls only work in `#{bot-dashboard}`.",
+                f"These controls only work in `#{order-status}`.",
                 ephemeral=True,
             )
             return
