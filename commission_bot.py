@@ -147,8 +147,6 @@ def make_order_embed(
             inline=False,
         )
 
-        # The persistent button callback uses this metadata to update the
-        # matching order embed in the customer's ticket channel after a restart.
         if ticket_message_id is not None:
             embed.set_footer(
                 text=f"ticket_channel_id={ticket_channel.id};"
@@ -205,8 +203,6 @@ class CommissionBot(commands.Bot):
         super().__init__(command_prefix="!", intents=intents)
 
     async def setup_hook(self) -> None:
-        # Register a generic persistent view. Its callbacks read the target
-        # ticket message IDs from the dashboard embed footer.
         self.add_view(OrderStatusView())
         self.add_view(OpenClosedView())
         synced = await self.tree.sync()
@@ -244,7 +240,6 @@ class OrderStatusView(discord.ui.View):
         if (
             interaction.channel is None
             or interaction.channel.name != DASHBOARD_CHANNEL_NAME
-
         ):
             await interaction.response.send_message(
                 f"These controls only work in `#{DASHBOARD_CHANNEL_NAME}`.",
@@ -314,7 +309,6 @@ class OrderStatusView(discord.ui.View):
             )
             return
 
-        # Preserve the existing ticket embed and only replace its status.
         old_embed = ticket_message.embeds[0] if ticket_message.embeds else None
         item = "Commission"
 
@@ -328,8 +322,6 @@ class OrderStatusView(discord.ui.View):
             elif old_embed.title and "•" in old_embed.title:
                 item = old_embed.title.split("•", 1)[1].strip()
 
-        # Editing the existing ticket embed keeps one canonical status card in
-        # the customer's ticket while the message below provides a clear alert.
         updated_ticket_embed = old_embed.copy() if old_embed else discord.Embed()
         status_label, color = STATUS_DETAILS[status]
         updated_ticket_embed.color = color
@@ -366,7 +358,6 @@ class OrderStatusView(discord.ui.View):
 
         await ticket_message.edit(embed=updated_ticket_embed)
 
-        # Update the dashboard card as well.
         updated_dashboard = dashboard_embed.copy()
         updated_dashboard.color = color
         updated_dashboard.timestamp = utc_now()
@@ -579,8 +570,6 @@ class DeadlineModal(discord.ui.Modal, title="Update expected completion"):
 
         await message.edit(embed=embed, view=OrderStatusView())
 
-        # Keep the deadline visible in the customer-facing ticket without
-        # sending a separate message for this staff-only update.
         reference = parse_ticket_reference(embed)
         if reference and interaction.guild:
             ticket_channel_id, ticket_message_id = reference
@@ -855,8 +844,6 @@ async def neworder(
         )
         return
 
-    # Create the canonical customer-facing status embed first so its message
-    # ID can be stored on the dashboard card for persistent button callbacks.
     ticket_embed = make_order_embed(
         client,
         item,
@@ -934,27 +921,7 @@ async def on_app_command_error(
         await interaction.response.send_message(message, ephemeral=True)
 
 
-def main() -> None:
-    token = os.getenv("DISCORD_TOKEN")
-    if not token:
-        raise RuntimeError(
-            "DISCORD_TOKEN is not set. Add it as a Replit Secret or environment variable."
-        )
-        keep_alive() 
-    bot.run(token)
-
-
-if __name__ == "__main__":
-    main()
-
-
-        dashboard_embed = interaction.message.embeds[0]
-        # ... (this is where your code snippet cut off)
-
-
 # ------------------------------- Execution ------------------------------- #
-
-bot = CommissionBot()
 
 if __name__ == "__main__":
     # Start the Flask web server first so Render finds the open port
